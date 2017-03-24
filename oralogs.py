@@ -5,15 +5,10 @@ lst = list()
 res = {}
 
 #<editor-fold desc="Establishing connection">
-
-ip = '172.17.12.58'
-username = 'oracle'
-password = 'Veeam123'
-outfile = os.getcwd() + '\\' + 'ArchiveLogSelect.log'
-# ip = getopts(argv)['-ip']
-# username = getopts(argv)['-username']
-# password = getopts(argv)['-password']
-# outfile = getopts(argv).get('-outfile') or os.getcwd() + '\\' + 'ArchiveLogSelect.log'
+ip = getopts(argv)['-ip']
+username = getopts(argv)['-username']
+password = getopts(argv)['-password']
+outfile = getopts(argv).get('-outfile') or os.getcwd() + '\\' + 'ArchiveLogSelect.log'
 
 # Create instance of SSHClient object
 remote_conn_pre = paramiko.SSHClient()
@@ -42,21 +37,18 @@ def get_arcs():
     rng = range(0, len(lines))
     f = open(outfile, 'w')
     for i in rng:
-        if not lines[i].startswith('['):
-            if 'echo $ORACLE_SID' in lines[i].strip():
+        if not lines[i].startswith('[') and 'echo $ORACLE_SID' in lines[i].strip():
                 sid = lines[i + 2]
         if lines[i].strip().find('SELECT') == 0:
             res = lines[i:]
             for i in res:
                 print >> f, i.strip()
-                yield i.strip()
+                yield i.strip(), sid.split()[0]
 
 
-for line in get_arcs():
-    print(str(line).splitlines())
+for line, sid in get_arcs():
     if len(line.split()) == 13:
         lst.append(int(line.split()[-5]))
-print sum(lst), 'Bytes'
 
 
 def convert_size(size_bytes):
@@ -67,4 +59,6 @@ def convert_size(size_bytes):
    p = math.pow(1024, i)
    s = round(size_bytes/p, 2)
    return '%s %s' % (s, size_name[i])
-print(convert_size(sum(lst)))
+print 'The size of %s archived logs is %s' % (sid.encode(), convert_size(sum(lst)))
+
+
