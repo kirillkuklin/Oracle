@@ -39,27 +39,21 @@ def get_arcs():
     output = remote_conn.recv(200000)
     sqlplus = output.decode("utf-8")
     lines = sqlplus.splitlines(True)
-    # yield lines
     rng = range(0, len(lines))
     f = open(outfile, 'w')
-    # yield lines
     for i in rng:
         if not lines[i].startswith('['):
-            # yield lines[i].strip()
             if 'echo $ORACLE_SID' in lines[i].strip():
                 sid = lines[i + 2]
-                yield sid
         if lines[i].strip().find('SELECT') == 0:
-            # yield lines[i].strip()
             res = lines[i:]
-            # yield res
-    #         # print res
             for i in res:
                 print >> f, i.strip()
                 yield i.strip()
 
 
 for line in get_arcs():
+    print(str(line).splitlines())
     if len(line.split()) == 13:
         lst.append(int(line.split()[-5]))
 print sum(lst), 'Bytes'
