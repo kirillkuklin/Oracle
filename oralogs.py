@@ -61,4 +61,4 @@ def convert_size(size_bytes):
    return '%s %s' % (s, size_name[i])
 print 'The size of %s archived logs is %s' % (sid.encode(), convert_size(sum(lst)))
 
-
+?
